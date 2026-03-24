@@ -18,12 +18,14 @@ import Body from "./components/Body.vue";
         href="{{url_for('static',filename='dist/output.css')}}"
       />
     </head>
-    <body
-      class="mx-auto flex min-h-screen w-full flex-col bg-gray-800 text-gray-300"
-    >
-      <Header />
-      <Body />
-      <Footer />
+    <body>
+      <div
+        class="bg-gray-800 text-gray-300 h-screen flex flex-col overflow-hidden"
+      >
+        <Header />
+        <Body />
+        <Footer />
+      </div>
     </body>
   </html>
 </template>

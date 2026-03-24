@@ -126,9 +126,6 @@ onUnmounted(() => {
 
     <div class="relative h-72 w-full">
       <Line :data="chartData" :options="chartOptions" />
-      <Line :data="chartData" :options="chartOptions" />
-      <Line :data="chartData" :options="chartOptions" />
-      <Line :data="chartData" :options="chartOptions" />
     </div>
   </div>
 </template>
