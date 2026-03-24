@@ -14,6 +14,12 @@ import {
   Legend,
   type ChartData,
 } from "chart.js";
+import {
+  SENSOR_KEYS,
+  useSensorStore,
+  type SensorType,
+  type TimeValue,
+} from "@/stores/sensors";
 
 ChartJS.register(
   CategoryScale,
@@ -63,53 +69,70 @@ const chartOptions = {
     duration: 0,
   },
 };
-
+const store = useSensorStore();
 const route = useRoute();
 const espId = computed(() => route.params.id);
+const espIdTest = computed<string>(() => {
+  const id = route.params.id;
+  return (Array.isArray(id) ? id[0] : id) || "-1";
+});
+const allLastValues = computed(() =>
+  store.getAllLastSensorValue(espIdTest.value),
+);
+
 const temperature = ref<number | string>("Oczekiwanie...");
 const humidity = ref<number | string>("Oczekiwanie...");
 
 const socket = io("http://127.0.0.1:5000");
 onMounted(() => {
   socket.on("sensor_update", (data) => {
-    if (data.id === espId.value) {
-      temperature.value = data.temp;
-      humidity.value = data.humidity;
-      const now = new Date();
-
-      const timeStr = now.toLocaleTimeString("pl-PL", {
-        hour: "2-digit",
-        minute: "2-digit",
-        second: "2-digit",
-      });
-      tempHistory.value.push(data.temp);
-      humHistory.value.push(data.humidity);
-
-      // 3. ZMIANA: Kopiujemy obecne dane do nowych tablic (BEZ UŻYWANIA .push()!)
-      const newLabels = [...(chartData.value.labels ?? []), timeStr];
-      const newTemps = [
-        ...(chartData.value.datasets[0]?.data ?? []),
-        data.temp,
-      ];
-      const newHums = [
-        ...(chartData.value.datasets[1]?.data ?? []),
-        data.humidity,
-      ];
-
-      if (newLabels.length > MAX_DATAPOINTS) {
-        newLabels.shift();
-        newTemps.shift();
-        newHums.shift();
+    console.log("Odebrano dane", data);
+    const now = new Date();
+    const timeStr = now.toLocaleTimeString("pl-PL", {
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+    });
+    for (const key of SENSOR_KEYS) {
+      if (data[key] === undefined) {
+        continue;
       }
-
-      chartData.value = {
-        labels: newLabels,
-        datasets: [
-          { ...chartData.value.datasets[0], data: newTemps },
-          { ...chartData.value.datasets[1], data: newHums },
-        ],
-      };
+      const timeValue: TimeValue = [timeStr, data[key]];
+      store.setSensorValue(data.id, key, timeValue);
     }
+    console.log(store.getAllLastSensorValue(data.id));
+    // if (data.id === espId.value) {
+    //   temperature.value = data.temp;
+    //   humidity.value = data.humidity;
+
+    //   tempHistory.value.push(data.temp);
+    //   humHistory.value.push(data.humidity);
+
+    //   // 3. ZMIANA: Kopiujemy obecne dane do nowych tablic (BEZ UŻYWANIA .push()!)
+    //   const newLabels = [...(chartData.value.labels ?? []), timeStr];
+    //   const newTemps = [
+    //     ...(chartData.value.datasets[0]?.data ?? []),
+    //     data.temp,
+    //   ];
+    //   const newHums = [
+    //     ...(chartData.value.datasets[1]?.data ?? []),
+    //     data.humidity,
+    //   ];
+
+    //   if (newLabels.length > MAX_DATAPOINTS) {
+    //     newLabels.shift();
+    //     newTemps.shift();
+    //     newHums.shift();
+    //   }
+
+    //   chartData.value = {
+    //     labels: newLabels,
+    //     datasets: [
+    //       { ...chartData.value.datasets[0], data: newTemps },
+    //       { ...chartData.value.datasets[1], data: newHums },
+    //     ],
+    //   };
+    // }
   });
 });
 
@@ -121,11 +144,13 @@ onUnmounted(() => {
   <div>
     <h2 class="text-lg font-semibold mb-2">ESP {{ espId }}</h2>
 
-    <p>{{ temperature }}</p>
-    <p>{{ humidity }}</p>
-
-    <div class="relative h-72 w-full">
-      <Line :data="chartData" :options="chartOptions" />
+    <!-- <p>{{ lastTemp }}</p> -->
+    <div v-for="(lastValue, key) in allLastValues" :key="key">
+      {{ key }}: {{ lastValue ? lastValue : "Oczekiwanie na dane..." }}
     </div>
+
+    <!-- <div class="h-72 w-full">
+      <Line :data="chartData" :options="chartOptions" />
+    </div> -->
   </div>
 </template>
