@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>IoT</title>
+    <link
+      rel="stylesheet"
+      href="{{url_for('static',filename='dist/output.css')}}"
+    />
+  </head>
+  <body class="bg-gray-950 text-gray-100 min-h-screen flex flex-col">
+    <header class="w-full border-b border-gray-800 bg-gray-900">
+      <div class="max-w-4xl mx-auto px-4 h-14 flex items-center justify-center">
+        <h1 class="font-semibold text-lg tracking-wide">Projekt IoT</h1>
+      </div>
+    </header>
+
+    <main class="flex-1 flex justify-center px-4 py-6">
+      <div
+        class="w-full max-w-4xl bg-gray-900 border border-gray-800 rounded-xl p-6 shadow"
+      >
+        <article id="esp1" class="mb-4 p-4 bg-gray-800 rounded-lg">
+          <div>test</div>
+        </article>
+
+        <article id="esp2" class="mb-4 p-4 bg-gray-800 rounded-lg">
+          {{ testy }}
+        </article>
+
+        <article id="esp3" class="p-4 bg-gray-800 rounded-lg">test</article>
+      </div>
+    </main>
+
+    <footer
+      class="border-t border-gray-800 text-center text-sm text-gray-500 py-4"
+    >
+      © 2026
+    </footer>
+  </body>
+</html>
