@@ -6,6 +6,7 @@ import { useSensorStore } from "@/stores/sensors";
 import type { TimeValue } from "@/types/sensors";
 import { SENSOR_KEYS } from "@/types/sensors";
 import LiveComponent from "./LiveComponent.vue";
+import { BACKEND_URL } from "@/constants/url";
 
 const store = useSensorStore();
 const route = useRoute();
@@ -15,7 +16,7 @@ const espId = computed<string>(() => {
   return (Array.isArray(id) ? id[0] : id) || "Nieznane";
 });
 
-const socket = io("http://127.0.0.1:5000");
+const socket = io(BACKEND_URL);
 
 onMounted(() => {
   socket.on("sensor_update", (data) => {
@@ -41,7 +42,7 @@ onUnmounted(() => {
 });
 </script>
 <template>
-  <div>
+  <section>
     <h2 class="text-3xl font-bold mb-10">ESP {{ espId }}</h2>
 
     <!-- <p>{{ lastTemp }}</p> -->
@@ -60,5 +61,5 @@ onUnmounted(() => {
     <!-- <div class="h-72 w-full">
       <Line :data="chartData" :options="chartOptions" />
     </div> -->
-  </div>
+  </section>
 </template>
