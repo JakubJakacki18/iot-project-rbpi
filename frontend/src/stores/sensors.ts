@@ -37,4 +37,5 @@ export const useSensorStore = defineStore("sensor", {
       return data;
     },
   },
+  persist: true,
 });
