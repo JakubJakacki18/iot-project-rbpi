@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { useSensorStore} from "@/stores/sensors";
-import type {SensorType} from "@/types/sensors";
-import { sensorConfigs } from "@/constants/sensor"
+import { useSensorStore } from "@/stores/sensors";
+import type { SensorType } from "@/types/sensors";
+import { sensorConfigs } from "@/constants/sensor";
 
 import LiveChart from "./LiveChart.vue";
 import { computed } from "vue";
@@ -19,19 +19,21 @@ const { sensorData } = defineProps<{ sensorData: SensorType }>();
 const sensorValue = computed(() =>
   store.getLastSensorValue(espId.value, sensorData),
 );
-
-
 </script>
 <template>
-  <p v-if="sensorValue">
+  <article v-if="sensorValue">
     {{ sensorConfigs[sensorData].label }}:
     <div>
-      <p class="text-2xl font-bold">{{ sensorValue.value?.toFixed(2)  }} {{ sensorConfigs[sensorData].unit }}</p>
-      <span class="text-xs text-gray-500">Ostatnia aktualizacja: {{ sensorValue.time }}</span>
+      <p class="text-2xl font-bold">
+        {{ sensorValue.value?.toFixed(2) }} {{ sensorConfigs[sensorData].unit }}
+      </p>
+      <span class="text-xs text-gray-500"
+        >Ostatnia aktualizacja: {{ sensorValue.time }}</span
+      >
     </div>
     <!-- <div v-else class="text-gray-500 italic">
       Oczekiwanie na dane...
     </div> -->
-    <LiveChart :sensorData="sensorData" /> 
-  </p>
+    <LiveChart :sensorData="sensorData" />
+  </article>
 </template>
