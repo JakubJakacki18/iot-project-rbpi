@@ -2,6 +2,10 @@
 import { computed, onMounted, onUnmounted, ref, watch } from "vue";
 import { useRoute } from "vue-router";
 import { io } from "socket.io-client";
+import { useSensorStore } from "@/stores/sensors";
+import type { SensorType, TimeValue } from "@/types/sensors";
+import { SENSOR_KEYS } from "@/types/sensors";
+import LiveComponent from "./LiveComponent.vue";
 import { Line } from "vue-chartjs";
 import {
   Chart as ChartJS,
@@ -14,10 +18,6 @@ import {
   Legend,
   type ChartData,
 } from "chart.js";
-import { useSensorStore } from "@/stores/sensors";
-import type { SensorType, TimeValue } from "@/types/sensors";
-import { SENSOR_KEYS } from "@/types/sensors";
-import LiveComponent from "./LiveComponent.vue";
 
 ChartJS.register(
   CategoryScale,
@@ -30,8 +30,6 @@ ChartJS.register(
 );
 
 const timeLabels = ref<string[]>([]);
-const tempHistory = ref<number[]>([]);
-const humHistory = ref<number[]>([]);
 const MAX_DATAPOINTS = 15;
 
 const chartData = ref<ChartData<"line">>({

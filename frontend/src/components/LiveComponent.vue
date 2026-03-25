@@ -10,14 +10,14 @@ import { useRoute } from "vue-router";
 const store = useSensorStore();
 const route = useRoute();
 
-const espIdTest = computed<string>(() => {
+const espId = computed<string>(() => {
   const id = route.params.id;
   return (Array.isArray(id) ? id[0] : id) || "-1";
 });
 
 const { sensorData } = defineProps<{ sensorData: SensorType }>();
 const sensorValue = computed(() =>
-  store.getLastSensorValue(espIdTest.value, sensorData),
+  store.getLastSensorValue(espId.value, sensorData),
 );
 
 
@@ -32,6 +32,6 @@ const sensorValue = computed(() =>
     <!-- <div v-else class="text-gray-500 italic">
       Oczekiwanie na dane...
     </div> -->
+    <LiveChart :sensorData="sensorData" /> 
   </p>
-  <!-- <LiveChart /> -->
 </template>
