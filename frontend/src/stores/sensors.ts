@@ -1,22 +1,6 @@
+import { SENSOR_KEYS } from "@/types/sensors";
+import type { SensorType, TimeValue, SensorMap } from "../types/sensors";
 import { defineStore } from "pinia";
-export const SENSOR_KEYS: SensorType[] = [
-  "temperature",
-  "humidity",
-  "pressure",
-  "tilt",
-  "light",
-] as const;
-
-export type TimeValue = [time: string, value: number];
-export type SensorDataDict = Record<string, TimeValue[]>;
-type SensorMap = {
-  temperature: SensorDataDict;
-  humidity: SensorDataDict;
-  pressure: SensorDataDict;
-  tilt: SensorDataDict;
-  light: SensorDataDict;
-};
-export type SensorType = keyof SensorMap;
 export const useSensorStore = defineStore("sensor", {
   state: () => ({
     data: {} as SensorMap,

@@ -14,12 +14,10 @@ import {
   Legend,
   type ChartData,
 } from "chart.js";
-import {
-  SENSOR_KEYS,
-  useSensorStore,
-  type SensorType,
-  type TimeValue,
-} from "@/stores/sensors";
+import { useSensorStore } from "@/stores/sensors";
+import type { SensorType, TimeValue } from "@/types/sensors";
+import { SENSOR_KEYS } from "@/types/sensors";
+import LiveComponent from "./LiveComponent.vue";
 
 ChartJS.register(
   CategoryScale,
@@ -97,7 +95,7 @@ onMounted(() => {
       if (data[key] === undefined) {
         continue;
       }
-      const timeValue: TimeValue = [timeStr, data[key]];
+      const timeValue: TimeValue = { time: timeStr, value: data[key] };
       store.setSensorValue(data.id, key, timeValue);
     }
     console.log(store.getAllLastSensorValue(data.id));
@@ -142,11 +140,19 @@ onUnmounted(() => {
 </script>
 <template>
   <div>
-    <h2 class="text-lg font-semibold mb-2">ESP {{ espId }}</h2>
+    <h2 class="text-3xl font-bold mb-6">ESP {{ espId }}</h2>
 
     <!-- <p>{{ lastTemp }}</p> -->
-    <div v-for="(lastValue, key) in allLastValues" :key="key">
+    <!-- <div v-for="(lastValue, key) in allLastValues" :key="key">
       {{ key }}: {{ lastValue ? lastValue : "Oczekiwanie na dane..." }}
+    </div> -->
+    <div>
+      <LiveComponent
+        v-for="key in SENSOR_KEYS"
+        :key="key"
+        :sensorData="key"
+        class="mb-2"
+      />
     </div>
 
     <!-- <div class="h-72 w-full">
