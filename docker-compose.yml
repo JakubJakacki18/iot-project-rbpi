@@ -53,5 +53,53 @@ services:
       FAKE_DATA: ${FAKE_DATA}
     networks:
       - my-network
+
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: rbpi_pgadmin
+    restart: always
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_EMAIL}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD}
+      PGADMIN_SERVER_JSON_FILE: /pgadmin4/servers.json
+    ports:
+      - "5050:80" # Panel będzie dostępny pod adresem http://localhost:5050
+    depends_on:
+      db:
+        condition: service_healthy
+    configs:
+      - source: pgadmin_servers
+        target: /pgadmin4/servers.json
+      - source: pgadmin_pgpass
+        target: /config/pgpass
+        uid: "5050" # Wymagane dla pgAdmina (bezpieczeństwo pliku haseł)
+        gid: "5050"
+        mode: 0600
+    networks:
+      - my-network
+
 volumes:
   timescale_data:
+
+configs:
+  pgadmin_servers:
+    content: |
+      {
+        "Servers": {
+          "1": {
+            "Name": "Baza IoT",
+            "Group": "Serwers",
+            "Host": "rbpi_db",
+            "Port": 5432,
+            "MaintenanceDB": "${DB_NAME}",
+            "Username": "${DB_USER}",
+            "SSLMode": "prefer",
+            "PassFile": "/config/pgpass"
+          }
+        }
+      }
+
+  pgadmin_pgpass:
+    # Format pliku to: host:port:baza:uzytkownik:haslo
+    content: |
+      rbpi_db:5432:*:${DB_USER}:${DB_PASSWORD}
