@@ -1,13 +1,14 @@
-from sqlalchemy import text
-from flask import Flask, render_template
+from sqlalchemy import text,func
+from flask import Flask, render_template,jsonify
 from flask_socketio import SocketIO
 from flask_sqlalchemy import SQLAlchemy
+from collections import defaultdict
 import threading
 import time
 import random
 import paho.mqtt.client as mqtt
 import os
-from datetime import datetime
+from datetime import datetime, timedelta, timezone
 
 BROKER = "127.0.0.1"   
 PORT = 1883
@@ -43,7 +44,7 @@ class SensorReading(db.Model):
 socketio = SocketIO(app, cors_allowed_origins="*")
 def send_temperature_data():
     while True:
-        socketio.sleep(2)
+        socketio.sleep(15)
         temp1 = round(23.0 + random.uniform(-0.5, 0.5), 1)
         temp2 = round(19.0 + random.uniform(-0.5, 0.5), 1)
 
@@ -71,7 +72,7 @@ def save_sensors_reading_to_db(payload):
 
 def send_pressure_data():
     while True:
-        socketio.sleep(10)
+        socketio.sleep(15)
         default_pressure = 1013
         new_pressure = default_pressure + random.uniform(-3.5, 3.5)
         socketio.emit('sensor_update', {'id': '1', 'pressure': new_pressure})
@@ -114,6 +115,45 @@ def create_hyper_table():
         except Exception as e:
             db.session.rollback()
             print(f"Info o Hypertable: {e}")
+
+
+@app.route('/api/sensor/week/<sensor_type>', methods=['GET'])
+def get_7_days_history(sensor_type):
+    valid_columns = ['temperature', 'pressure', 'humidity', 'tilt', 'light']
+    if sensor_type not in valid_columns:
+        return jsonify({'error': 'Nieznany typ czujnika'}), 400
+    seven_days_ago = datetime.now(timezone.utc) - timedelta(days=7)
+    column = getattr(SensorReading, sensor_type)
+    query = db.session.query(
+        SensorReading.esp_id,
+        func.date_trunc('day', SensorReading.timestamp).label('day'),
+        func.avg(column).label('avg_value')
+    ).filter(
+        SensorReading.timestamp >= seven_days_ago
+    ).group_by(
+        SensorReading.esp_id,
+        func.date_trunc('day', SensorReading.timestamp)
+    ).order_by(
+        func.date_trunc('day', SensorReading.timestamp)
+    ).all()
+
+    data = defaultdict(dict)
+    date_set = set()
+
+    for row in query:
+        esp_id = row.esp_id
+        day_str = row.day.strftime('%d.%m.%Y')
+        val = round(row.avg_value, 2) if row.avg_value is not None else None
+        data[esp_id][day_str] = val
+        date_set.add(day_str)
+
+    return jsonify({
+        "data": data
+    })
+
+@app.route('/test/', methods=['GET'])
+def test():
+    return jsonify({"test":"testing"})
 
 if __name__ in "__main__":
     create_hyper_table()

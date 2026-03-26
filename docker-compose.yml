@@ -63,7 +63,7 @@ services:
       PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD}
       PGADMIN_SERVER_JSON_FILE: /pgadmin4/servers.json
     ports:
-      - "5050:80" # Panel będzie dostępny pod adresem http://localhost:5050
+      - "5050:80"
     depends_on:
       db:
         condition: service_healthy
@@ -72,7 +72,7 @@ services:
         target: /pgadmin4/servers.json
       - source: pgadmin_pgpass
         target: /config/pgpass
-        uid: "5050" # Wymagane dla pgAdmina (bezpieczeństwo pliku haseł)
+        uid: "5050"
         gid: "5050"
         mode: 0600
     networks:
@@ -100,6 +100,5 @@ configs:
       }
 
   pgadmin_pgpass:
-    # Format pliku to: host:port:baza:uzytkownik:haslo
     content: |
       rbpi_db:5432:*:${DB_USER}:${DB_PASSWORD}
