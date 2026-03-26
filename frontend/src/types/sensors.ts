@@ -16,3 +16,7 @@ export type SensorMap = {
   light: SensorDataDict;
 };
 export type SensorType = keyof SensorMap;
+
+export interface SensorHistoryAvgResponse {
+  data: Record<string, Record<string, number | null>>;
+}

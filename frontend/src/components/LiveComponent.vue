@@ -15,17 +15,17 @@ const espId = computed<string>(() => {
   return (Array.isArray(id) ? id[0] : id) || "-1";
 });
 
-const { sensorData } = defineProps<{ sensorData: SensorType }>();
+const { sensorType: sensorType } = defineProps<{ sensorType: SensorType }>();
 const sensorValue = computed(() =>
-  store.getLastSensorValue(espId.value, sensorData),
+  store.getLastSensorValue(espId.value, sensorType),
 );
 </script>
 <template>
   <article v-if="sensorValue">
-    {{ sensorConfigs[sensorData].label }}:
+    {{ sensorConfigs[sensorType].label }}:
     <div>
       <p class="text-2xl font-bold">
-        {{ sensorValue.value?.toFixed(2) }} {{ sensorConfigs[sensorData].unit }}
+        {{ sensorValue.value?.toFixed(2) }} {{ sensorConfigs[sensorType].unit }}
       </p>
       <span class="text-xs text-gray-500"
         >Ostatnia aktualizacja: {{ sensorValue.time }}</span
@@ -34,6 +34,6 @@ const sensorValue = computed(() =>
     <!-- <div v-else class="text-gray-500 italic">
       Oczekiwanie na dane...
     </div> -->
-    <LiveChart :sensorData="sensorData" />
+    <LiveChart :sensorType="sensorType" />
   </article>
 </template>

@@ -37,14 +37,14 @@ const espId = computed<string>(() => {
   return (Array.isArray(id) ? id[0] : id) || "-1";
 });
 
-const { sensorData } = defineProps<{ sensorData: SensorType }>();
+const { sensorType: sensorType } = defineProps<{ sensorType: SensorType }>();
 const sensorValue = computed(() =>
-  store.getSensorValues(espId.value, sensorData),
+  store.getSensorValues(espId.value, sensorType),
 );
 
 const chartLabel: string =
-  sensorConfigs[sensorData].label + " " + sensorConfigs[sensorData].unit;
-const chartColor: string = sensorConfigs[sensorData].color;
+  sensorConfigs[sensorType].label + " " + sensorConfigs[sensorType].unit;
+const chartColor: string = sensorConfigs[sensorType].color;
 
 const chartData = ref<ChartData<"line">>({
   labels: [],

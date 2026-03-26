@@ -9,6 +9,7 @@ import random
 import paho.mqtt.client as mqtt
 import os
 from datetime import datetime, timedelta, timezone
+from flask_cors import CORS
 
 BROKER = "127.0.0.1"   
 PORT = 1883
@@ -22,6 +23,7 @@ DB_PORT = os.getenv("DB_PORT", "5432")
 
 
 app = Flask(__name__)
+CORS(app)
 
 app.config['SQLALCHEMY_DATABASE_URI'] = f'postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False

@@ -53,7 +53,7 @@ onUnmounted(() => {
       <LiveComponent
         v-for="key in SENSOR_KEYS"
         :key="key"
-        :sensorData="key"
+        :sensorType="key"
         class="mb-10 mx-6 bg-gray-950 p-4 rounded-lg border border-gray-800 shadow"
       />
     </div>
