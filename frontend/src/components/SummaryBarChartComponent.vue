@@ -28,6 +28,7 @@ ChartJS.register(
 const loading = ref(true);
 const error = ref<string | null>(null);
 const chartData = ref<any>(null);
+const avg = ref<string>("Brak");
 
 const chartOptions = {
   responsive: true,
@@ -51,30 +52,34 @@ const loadData = async () => {
     const response = await SensorService.getSensorLastWeekAvgValues(sensorType);
     const rawData = response.data;
 
-    const allDates = new Set<string>();
+    const allDates: string[] = [];
     Object.values(rawData).forEach((espData) => {
-      Object.keys(espData).forEach((date) => allDates.add(date));
+      Object.keys(espData).forEach((date) => {
+        if (!allDates.includes(date)) {
+          allDates.push(date);
+        }
+      });
     });
-
-    const sortedDates = Array.from(allDates).sort((a, b) => {
-      const [dayA, monthA, yearA] = a.split(".");
-      const [dayB, monthB, yearB] = b.split(".");
-      return (
-        new Date(`${yearA}-${monthA}-${dayA}`).getTime() -
-        new Date(`${yearB}-${monthB}-${dayB}`).getTime()
-      );
-    });
+    const allValues = allDates.flatMap((date) =>
+      Object.values(rawData)
+        .map((espData) => espData[date])
+        .filter((v) => typeof v === "number"),
+    );
+    console.log(allValues);
+    avg.value = (
+      (allValues?.reduce((sum, v) => sum + v, 0) ?? 0) / allValues.length
+    ).toFixed(2);
 
     const datasets = Object.entries(rawData).map(([espId, readings]) => {
       return {
         label: `ESP-${espId}`,
         backgroundColor: getRandomColor(espId),
-        data: sortedDates.map((date) => readings[date] ?? null),
+        data: allDates.map((date) => readings[date] ?? null),
       };
     });
 
     chartData.value = {
-      labels: sortedDates,
+      labels: allDates,
       datasets: datasets,
     };
     console.log(chartData);
@@ -93,12 +98,14 @@ onMounted(() => {
 
 <template>
   <div
+    v-if="avg !== `NaN`"
     class="mb-10 mx-6 bg-gray-950 p-4 rounded-lg border border-gray-800 shadow"
   >
     <div class="flex flex-col h-72">
       <h3 class="text-md font-bold mb-4 text-center">
-        Średnia z tygodnia: {{ sensorConfigs[sensorType].label }}
+        Dane z tygodnia - {{ sensorConfigs[sensorType].label }}
       </h3>
+      <p>Średnia: {{ avg }} {{ sensorConfigs[sensorType].unit }}</p>
       <div
         v-if="loading"
         class="flex-1 flex items-center justify-center text-center"

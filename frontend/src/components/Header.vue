@@ -14,8 +14,12 @@ const navItems = [{ to: "/", label: "Dashboard" }, ...lista];
   <header
     class="flex flex-row flex-none justify-between z-50 border-b border-gray-700 bg-gray-900"
   >
-    <div class="w-64 p-4 bg-gray-950 rounded-br-2xl border-r border-gray-800">
-      <h2 class="text-center text-2xl font-bold tracking-wider text-blue-400">
+    <div
+      class="w-64 p-4 bg-gray-950 rounded-br-2xl border-r border-gray-800 flex items-center justify-center text-center"
+    >
+      <h2
+        class="text-center text-xl lg:text-2xl font-bold tracking-wider text-blue-400"
+      >
         IoT Project
       </h2>
     </div>
