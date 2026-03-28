@@ -1,3 +1,4 @@
+import json
 from sqlalchemy import text,func
 from flask import Flask, render_template,jsonify
 from flask_socketio import SocketIO
@@ -95,15 +96,19 @@ def on_connect(client, userdata, flags, reason_code, properties):
     client.subscribe(TOPIC)
     print(f"Nasłuchuję na temacie: {TOPIC}")
 
+def get_id_str_from_topic(msg):
+    return msg.topic.split("/")[-1]
+
 def on_message(client, userdata, msg):
+    esp_id_str = get_id_str_from_topic(msg)
     try:
         payload = parse_mqtt_message(msg)
         emit_sensors_update(payload)
         save_sensors_reading_to_db(payload)
-    except ValueError:
-        print(f"Błąd: Ostatni człon topicu MQTT '{esp_id_str}' nie jest liczbą całkowitą!")
     except json.JSONDecodeError:
         print("Błąd: Otrzymano nieprawidłowy format JSON z MQTT!")
+    except ValueError:
+        print(f"Błąd: Ostatni człon topicu MQTT '{esp_id_str}' nie jest liczbą całkowitą!")
     except Exception as e:
         print(f"Błąd przetwarzania wiadomości MQTT: {e}")
 
@@ -164,11 +169,11 @@ if __name__ in "__main__":
         socketio.start_background_task(send_temperature_data)
         socketio.start_background_task(send_pressure_data)
     else:
-        client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2)
-        client.on_connect = on_connect
-        client.on_message = on_message
-        client.connect(BROKER, PORT, 60)
-        client.loop_start()
+        mqtt_client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2)
+        mqtt_client.on_connect = on_connect
+        mqtt_client.on_message = on_message
+        mqtt_client.connect(BROKER, PORT, 60)
+        mqtt_client.loop_start()
             
     socketio.run(app,host="0.0.0.0",debug=True, port=5000,allow_unsafe_werkzeug=True)
 
